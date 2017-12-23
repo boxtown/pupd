@@ -1,0 +1,11 @@
+# Ignore IDE settings
+.vscode/*
+
+# Ignore vendored dependencies
+vendor/*
+
+# Ignore OS specific
+.DS_Store
+
+# Ignore executable
+pupd
