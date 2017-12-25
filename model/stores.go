@@ -1,5 +1,6 @@
 package model
 
+// MovementStore defines an interface for a store of Movements
 type MovementStore interface {
 	Create(movement *Movement) (string, error)
 	Get(id string) (*Movement, error)
