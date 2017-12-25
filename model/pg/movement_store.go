@@ -4,9 +4,6 @@ import (
 	"github.com/boxtown/pupd/model"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-
-	// Only import pq if using pg model package
-	_ "github.com/lib/pq"
 )
 
 // MovementStore implements model.MovementStore
@@ -21,8 +18,8 @@ func NewMovementStore(source sqlx.Ext) model.MovementStore {
 	return &MovementStore{source: source}
 }
 
-// Create attempts to create a record for the given movement in
-// the store. A v4 UUID will be assigned to the movement as an ID
+// Create attempts to create a record for the given Movement in
+// the store. A v4 UUID will be assigned to the Movement as an ID
 // and is returned by this method
 func (store MovementStore) Create(movement *model.Movement) (string, error) {
 	id, err := uuid.NewRandom()
@@ -49,7 +46,7 @@ func (store MovementStore) Get(id string) (*model.Movement, error) {
 		"SELECT movement_id, name FROM core.movements WHERE movement_id=$1",
 		id,
 	)
-	var movement model.Movement
+	movement := model.Movement{}
 	err := row.Scan(&movement.ID, &movement.Name)
 	if err != nil {
 		return nil, err
@@ -65,7 +62,7 @@ func (store MovementStore) List() ([]model.Movement, error) {
 	}
 	defer rows.Close()
 
-	var movements []model.Movement
+	movements := []model.Movement{}
 	for rows.Next() {
 		movement := model.Movement{}
 		err := rows.Scan(&movement.ID, &movement.Name)

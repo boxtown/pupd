@@ -8,3 +8,12 @@ type MovementStore interface {
 	Update(movement *Movement) error
 	Delete(id string) error
 }
+
+// UnitStore defines an interface for a store of Units
+type UnitStore interface {
+	Create(unit *Unit) (string, error)
+	Get(id string) (*Unit, error)
+	List() ([]Unit, error)
+	Update(unit *Unit) error
+	Delete(id string) error
+}
