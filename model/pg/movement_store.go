@@ -28,15 +28,13 @@ func (store MovementStore) Create(movement *model.Movement) (string, error) {
 	}
 	id := raw.String()
 
-	_, err = store.source.Exec(
+	if _, err = store.source.Exec(
 		"INSERT INTO core.movements (movement_id, name) VALUES ($1, $2)",
 		id,
 		movement.Name,
-	)
-	if err != nil {
+	); err != nil {
 		return "", err
 	}
-	movement.ID = id
 	return movement.ID, nil
 }
 
@@ -48,8 +46,7 @@ func (store MovementStore) Get(id string) (*model.Movement, error) {
 		id,
 	)
 	movement := model.Movement{}
-	err := row.Scan(&movement.ID, &movement.Name)
-	if err != nil {
+	if err := row.Scan(&movement.ID, &movement.Name); err != nil {
 		return nil, err
 	}
 	return &movement, nil
@@ -66,14 +63,12 @@ func (store MovementStore) List() ([]model.Movement, error) {
 	movements := []model.Movement{}
 	for rows.Next() {
 		movement := model.Movement{}
-		err := rows.Scan(&movement.ID, &movement.Name)
-		if err != nil {
+		if err := rows.Scan(&movement.ID, &movement.Name); err != nil {
 			return nil, err
 		}
 		movements = append(movements, movement)
 	}
-	err = rows.Err()
-	if err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 	return movements, nil

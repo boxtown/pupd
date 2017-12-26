@@ -28,15 +28,13 @@ func (store UnitStore) Create(unit *model.Unit) (string, error) {
 	}
 	id := raw.String()
 
-	_, err = store.source.Exec(
+	if _, err = store.source.Exec(
 		"INSERT INTO core.units (unit_id, name) VALUES ($1, $2)",
 		id,
 		unit.Name,
-	)
-	if err != nil {
+	); err != nil {
 		return "", err
 	}
-	unit.ID = id
 	return unit.ID, nil
 }
 
@@ -48,8 +46,7 @@ func (store UnitStore) Get(id string) (*model.Unit, error) {
 		id,
 	)
 	unit := model.Unit{}
-	err := row.Scan(&unit.ID, &unit.Name)
-	if err != nil {
+	if err := row.Scan(&unit.ID, &unit.Name); err != nil {
 		return nil, err
 	}
 	return &unit, nil
@@ -66,14 +63,12 @@ func (store UnitStore) List() ([]model.Unit, error) {
 	units := []model.Unit{}
 	for rows.Next() {
 		unit := model.Unit{}
-		err := rows.Scan(&unit.ID, &unit.Name)
-		if err != nil {
+		if err := rows.Scan(&unit.ID, &unit.Name); err != nil {
 			return nil, err
 		}
 		units = append(units, unit)
 	}
-	err = rows.Err()
-	if err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 	return units, nil

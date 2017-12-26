@@ -17,3 +17,13 @@ type UnitStore interface {
 	Update(unit *Unit) error
 	Delete(id string) error
 }
+
+// WorkoutStore defines an interface for a store of Workouts
+type WorkoutStore interface {
+	Create(workout *Workout) (string, error)
+}
+
+// ExerciseStore defines an interface for a store of Exercises
+type ExerciseStore interface {
+	Create(workoutID string, exercise *Exercise) (string, error)
+}
