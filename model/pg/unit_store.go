@@ -22,20 +22,21 @@ func NewUnitStore(source sqlx.Ext) model.UnitStore {
 // A v4 UUID will be assigned to the Unit and returned by
 // this method
 func (store UnitStore) Create(unit *model.Unit) (string, error) {
-	id, err := uuid.NewRandom()
+	raw, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
 	}
-	unit.ID = id.String()
+	id := raw.String()
 
 	_, err = store.source.Exec(
 		"INSERT INTO core.units (unit_id, name) VALUES ($1, $2)",
-		unit.ID,
+		id,
 		unit.Name,
 	)
 	if err != nil {
 		return "", err
 	}
+	unit.ID = id
 	return unit.ID, nil
 }
 

@@ -22,20 +22,21 @@ func NewMovementStore(source sqlx.Ext) model.MovementStore {
 // the store. A v4 UUID will be assigned to the Movement as an ID
 // and is returned by this method
 func (store MovementStore) Create(movement *model.Movement) (string, error) {
-	id, err := uuid.NewRandom()
+	raw, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
 	}
-	movement.ID = id.String()
+	id := raw.String()
 
 	_, err = store.source.Exec(
 		"INSERT INTO core.movements (movement_id, name) VALUES ($1, $2)",
-		movement.ID,
+		id,
 		movement.Name,
 	)
 	if err != nil {
 		return "", err
 	}
+	movement.ID = id
 	return movement.ID, nil
 }
 
