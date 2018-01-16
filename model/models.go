@@ -27,7 +27,7 @@ type ExerciseSet struct {
 	Reps         int
 	MinIntensity float32
 	MaxIntensity *float32
-	Unit         Unit
+	Unit         *Unit
 }
 
 // Exercise is a collection of variable sets for a single movement
@@ -35,13 +35,13 @@ type ExerciseSet struct {
 type Exercise struct {
 	ID       string
 	Pos      int
-	Movement Movement
-	Sets     []ExerciseSet
+	Movement *Movement
+	Sets     []*ExerciseSet
 }
 
 // Workout is a named collection of exercises
 type Workout struct {
 	ID        string
 	Name      string
-	Exercises []Exercise
+	Exercises []*Exercise
 }

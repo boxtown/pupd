@@ -42,7 +42,7 @@ func (store WorkoutStore) Create(workout *model.Workout) (string, error) {
 	}
 	for _, exercise := range workout.Exercises {
 		// TODO: ensure proper Pos field?
-		if _, err = store.exercises.Create(id, &exercise); err != nil {
+		if _, err = store.exercises.Create(id, exercise); err != nil {
 			return "", err
 		}
 	}

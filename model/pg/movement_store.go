@@ -35,7 +35,7 @@ func (store MovementStore) Create(movement *model.Movement) (string, error) {
 	); err != nil {
 		return "", err
 	}
-	return movement.ID, nil
+	return id, nil
 }
 
 // Get attempts to retrieve a Movement from storage by

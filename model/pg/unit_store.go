@@ -35,7 +35,7 @@ func (store UnitStore) Create(unit *model.Unit) (string, error) {
 	); err != nil {
 		return "", err
 	}
-	return unit.ID, nil
+	return id, nil
 }
 
 // Get attempts to retrieve a Unit from storage

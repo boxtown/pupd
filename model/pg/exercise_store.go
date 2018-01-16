@@ -39,6 +39,20 @@ func (store ExerciseStore) Create(workoutID string, exercise *model.Exercise) (s
 		return "", err
 	}
 
-	// TODO: create sets
+	for _, set := range exercise.Sets {
+		// TODO: ensure proper Pos field?
+		if _, err = store.source.Exec(
+			`INSERT INTO core.exercise_sets (exercise_id, pos, reps, min_intensity, max_intensity, unit_id)
+				VALUES ($1, $2, $3, $4, $5, $6)`,
+			id,
+			set.Pos,
+			set.Reps,
+			set.MinIntensity,
+			set.MaxIntensity,
+			set.Unit.ID,
+		); err != nil {
+			return "", err
+		}
+	}
 	return id, nil
 }
