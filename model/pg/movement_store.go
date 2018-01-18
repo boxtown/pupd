@@ -52,6 +52,20 @@ func (store MovementStore) Get(id string) (*model.Movement, error) {
 	return &movement, nil
 }
 
+// GetByName attempts to retrieve a Movement from storage by
+// name
+func (store MovementStore) GetByName(name string) (*model.Movement, error) {
+	row := store.source.QueryRowx(
+		"SELECT movement_id, name FROM core.movements WHERE name=$1",
+		name,
+	)
+	movement := model.Movement{}
+	if err := row.Scan(&movement.ID, &movement.Name); err != nil {
+		return nil, err
+	}
+	return &movement, nil
+}
+
 // List lists all Movements from storage
 func (store MovementStore) List() ([]model.Movement, error) {
 	rows, err := store.source.Query("SELECT movement_id, name FROM core.movements")

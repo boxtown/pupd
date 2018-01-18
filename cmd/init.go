@@ -25,13 +25,13 @@ var initCmd = &cobra.Command{
 		url := fmt.Sprintf("postgres://%s:%s@localhost/pupd", initUser, initPass)
 		source, err := pg.NewDataSource(url)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Fatal(err)
 		}
 		defer source.Close()
 
 		_, err = sqlx.LoadFile(source, "scripts/sql/schema.sql")
 		if err != nil {
-			log.Println(err.Error())
+			log.Println(err)
 		}
 	},
 }

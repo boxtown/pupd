@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"github.com/boxtown/pupd/model"
@@ -19,30 +21,37 @@ func init() {
 	rootCmd.AddCommand(seedCmd)
 }
 
+// Seed is a structure used to represent a database seed data store
+type Seed struct {
+	Movements []*model.Movement `json:"movements"`
+	Units     []*model.Unit     `json:"units"`
+	Workouts  []*model.Workout  `json:"workouts"`
+}
+
 var seedCmd = &cobra.Command{
 	Use:   "seed",
 	Short: "Seed the database with test data",
 	Run: func(cmd *cobra.Command, args []string) {
-		movements := []*model.Movement{
-			&model.Movement{Name: "Back Squat"},
-			&model.Movement{Name: "Deadlift"},
-			&model.Movement{Name: "Bench Press"},
-			&model.Movement{Name: "Overhead Press"},
+		var seed Seed
+		raw, err := ioutil.ReadFile("./resources/seed.json")
+		if err != nil {
+			log.Fatal(err)
 		}
-		units := []*model.Unit{
-			&model.Unit{Name: "%"},
+		err = json.Unmarshal(raw, &seed)
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		url := fmt.Sprintf("postgres://%s:%s@localhost/pupd", seedUser, seedPass)
 		source, err := pg.NewDataSource(url)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Fatal(err)
 		}
 		defer source.Close()
 
 		err = source.Transaction(func(tx *sqlx.Tx) error {
 			movementStore := pg.NewMovementStore(tx)
-			for _, movement := range movements {
+			for _, movement := range seed.Movements {
 				id, err := movementStore.Create(movement)
 				if err != nil {
 					return err
@@ -50,7 +59,7 @@ var seedCmd = &cobra.Command{
 				movement.ID = id
 			}
 			unitStore := pg.NewUnitStore(tx)
-			for _, unit := range units {
+			for _, unit := range seed.Units {
 				id, err := unitStore.Create(unit)
 				if err != nil {
 					return err
@@ -58,30 +67,8 @@ var seedCmd = &cobra.Command{
 				unit.ID = id
 			}
 
-			// Workouts is created mid-transaction in order to make
-			// use of generated IDs
-			workouts := []*model.Workout{
-				&model.Workout{
-					Name: "Sample Workout",
-					Exercises: []*model.Exercise{
-						&model.Exercise{
-							Pos:      0,
-							Movement: movements[0],
-							Sets: []*model.ExerciseSet{
-								&model.ExerciseSet{
-									Pos:          0,
-									Reps:         5,
-									MinIntensity: 0.9,
-									Unit:         units[0],
-								},
-							},
-						},
-					},
-				},
-			}
-
 			workoutStore := pg.NewWorkoutStore(tx)
-			for _, workout := range workouts {
+			for _, workout := range seed.Workouts {
 				if _, err := workoutStore.Create(workout); err != nil {
 					return err
 				}
@@ -89,7 +76,7 @@ var seedCmd = &cobra.Command{
 			return nil
 		})
 		if err != nil {
-			log.Println(err.Error())
+			log.Println(err)
 		}
 	},
 }

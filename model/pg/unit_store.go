@@ -52,6 +52,20 @@ func (store UnitStore) Get(id string) (*model.Unit, error) {
 	return &unit, nil
 }
 
+// GetByName attempts to retrieve a Unit from storage
+// by name
+func (store UnitStore) GetByName(name string) (*model.Unit, error) {
+	row := store.source.QueryRowx(
+		"SELECT unit_id, name FROM core.units WHERE name=$1",
+		name,
+	)
+	unit := model.Unit{}
+	if err := row.Scan(&unit.ID, &unit.Name); err != nil {
+		return nil, err
+	}
+	return &unit, nil
+}
+
 // List lists all Units from storage
 func (store UnitStore) List() ([]model.Unit, error) {
 	rows, err := store.source.Query("SELECT unit_id, name FROM core.units")

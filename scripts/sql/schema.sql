@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS exercise_sets (
     max_intensity real,
     unit_id uuid NOT NULL REFERENCES units,
     PRIMARY KEY (exercise_id, pos),
-    CHECK (max_intensity > min_intensity)
+    CHECK (max_intensity > min_intensity AND max_intensity <= 1.0),
+    CHECK (min_intensity >= 0.0 AND min_intensity <= 1.0)
 );
 GRANT ALL ON exercise_sets TO pupd_api;

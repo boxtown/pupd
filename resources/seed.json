@@ -1,0 +1,168 @@
+{
+    "movements": [
+        { "name": "Back Squat" },
+        { "name": "Deadlift" },
+        { "name": "Bench Press" },
+        { "name": "Overhead Press" },
+        { "name": "Row" }
+    ],
+    "units": [
+        { "name": "%" }
+    ],
+    "workouts": [
+        {
+            "name": "Sample Workout A",
+            "exercises": [
+                {
+                    "pos": 0,
+                    "movement": { "name": "Back Squat" },
+                    "sets": [
+                        {
+                            "pos": 0,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 1,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 2,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        }
+                    ]
+                },
+                {
+                    "pos": 1,
+                    "movement": { "name": "Bench Press" },
+                    "sets": [
+                        {
+                            "pos": 0,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 1,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 2,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        }
+                    ]
+                },
+                {
+                    "pos": 2,
+                    "movement": { "name": "Deadlift" },
+                    "sets": [
+                        {
+                            "pos": 0,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 1,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 2,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Sample Workout B",
+            "exercises": [
+                {
+                    "pos": 0,
+                    "movement": { "name": "Back Squat" },
+                    "sets": [
+                        {
+                            "pos": 0,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 1,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 2,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        }
+                    ]
+                },
+                {
+                    "pos": 1,
+                    "movement": { "name": "Overhead Press" },
+                    "sets": [
+                        {
+                            "pos": 0,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 1,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 2,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        }
+                    ]
+                },
+                {
+                    "pos": 2,
+                    "movement": { "name": "Row" },
+                    "sets": [
+                        {
+                            "pos": 0,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 1,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        },
+                        {
+                            "pos": 2,
+                            "reps": 5,
+                            "minIntensity": 0.9,
+                            "unit": { "name" : "%" }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

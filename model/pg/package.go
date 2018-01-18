@@ -2,9 +2,10 @@ package pg
 
 import (
 	// Only import pq if using pg model package
-	_ "github.com/lib/pq"
-	"github.com/jmoiron/sqlx"
 	"log"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 // DataSource represents a PostgreSQL data source
@@ -33,7 +34,7 @@ func NewDataSource(connStr string) (*DataSource, error) {
 // Transaction executes the given handler within a transaction.
 // If an error is returned by the handler or occurs during execution
 // of the `handler` function, there will be an attempt to rollback the
-// transaction. 
+// transaction.
 func (source DataSource) Transaction(handler func(*sqlx.Tx) error) error {
 	tx, err := source.Beginx()
 	if err != nil {
@@ -45,7 +46,7 @@ func (source DataSource) Transaction(handler func(*sqlx.Tx) error) error {
 	}
 	if err != nil {
 		if err := tx.Rollback(); err != nil && source.Debug {
-			log.Println(err.Error())
+			log.Println(err)
 		}
 	}
 	return err
