@@ -1,10 +1,10 @@
 package pg
 
 import (
-	// Only import pq if using pg model package
 	"log"
 
 	"github.com/jmoiron/sqlx"
+	// Only import pq if using pg model package
 	_ "github.com/lib/pq"
 )
 

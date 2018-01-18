@@ -28,4 +28,5 @@ type WorkoutStore interface {
 // ExerciseStore defines an interface for a store of Exercises
 type ExerciseStore interface {
 	Create(workoutID string, exercise *Exercise) (string, error)
+	Get(id string) (*Exercise, error)
 }

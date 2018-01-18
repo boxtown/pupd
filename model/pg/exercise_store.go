@@ -47,32 +47,84 @@ func (store ExerciseStore) Create(workoutID string, exercise *model.Exercise) (s
 	return id, nil
 }
 
+// Get attempts to retrieve an Exercise from storage by
+// its ID
+func (store ExerciseStore) Get(id string) (*model.Exercise, error) {
+	row := store.source.QueryRowx(
+		`SELECT e.exercise_id, e.pos, e.movement_id, m.name
+			FROM core.exercises AS e
+			INNER JOIN core.movements AS m ON e.movement_id=m.movement_id
+			WHERE e.exercise_id=$1`,
+		id,
+	)
+	exercise := model.Exercise{Movement: &model.Movement{}}
+	if err := row.Scan(
+		&exercise.ID,
+		&exercise.Pos,
+		&exercise.Movement.ID,
+		&exercise.Movement.Name,
+	); err != nil {
+		return nil, err
+	}
+
+	rows, err := store.source.Queryx(
+		`SELECT e.pos, e.reps, e.min_intensity, e.max_intensity, e.unit_id, u.name
+			FROM core.exercise_sets AS e
+			INNER JOIN core.units AS u ON e.unit_id=u.unit_id
+			WHERE e.exercise_id=$1`,
+		id,
+	)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		set := model.ExerciseSet{Unit: &model.Unit{}}
+		if err := rows.Scan(
+			&set.Pos,
+			&set.Reps,
+			&set.MinIntensity,
+			&set.MaxIntensity,
+			&set.Unit.ID,
+			&set.Unit.Name,
+		); err != nil {
+			return nil, err
+		}
+		exercise.Sets = append(exercise.Sets, &set)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return &exercise, nil
+}
+
 func (store ExerciseStore) insertExercise(id, workoutID string, exercise *model.Exercise) error {
-	if len(exercise.Movement.ID) == 0 {
+	movementID := exercise.Movement.ID
+	if len(movementID) == 0 {
 		movement, err := store.movements.GetByName(exercise.Movement.Name)
 		if err != nil {
 			return err
 		}
-		exercise.Movement = movement
+		movementID = movement.ID
 	}
 	_, err := store.source.Exec(
 		"INSERT INTO core.exercises (exercise_id, workout_id, pos, movement_id) VALUES ($1, $2, $3, $4)",
 		id,
 		workoutID,
 		exercise.Pos,
-		exercise.Movement.ID,
+		movementID,
 	)
 	return err
 }
 
 func (store ExerciseStore) insertExerciseSet(id string, set *model.ExerciseSet) error {
 	// TODO: ensure proper Pos field?
-	if len(set.Unit.ID) == 0 {
+	unitID := set.Unit.ID
+	if len(unitID) == 0 {
 		unit, err := store.units.GetByName(set.Unit.Name)
 		if err != nil {
 			return err
 		}
-		set.Unit = unit
+		unitID = unit.ID
 	}
 	_, err := store.source.Exec(
 		`INSERT INTO core.exercise_sets (exercise_id, pos, reps, min_intensity, max_intensity, unit_id)
@@ -82,7 +134,7 @@ func (store ExerciseStore) insertExerciseSet(id string, set *model.ExerciseSet) 
 		set.Reps,
 		set.MinIntensity,
 		set.MaxIntensity,
-		set.Unit.ID,
+		unitID,
 	)
 	return err
 }
