@@ -51,50 +51,65 @@ func (store ExerciseStore) Create(workoutID string, exercise *model.Exercise) (s
 // its ID
 func (store ExerciseStore) Get(id string) (*model.Exercise, error) {
 	row := store.source.QueryRowx(
-		`SELECT e.exercise_id, e.pos, e.movement_id, m.name
+		`SELECT e.pos, e.movement_id, m.name
 			FROM core.exercises AS e
 			INNER JOIN core.movements AS m ON e.movement_id=m.movement_id
 			WHERE e.exercise_id=$1`,
 		id,
 	)
-	exercise := model.Exercise{Movement: &model.Movement{}}
+	exercise := model.Exercise{ID: id, Movement: &model.Movement{}}
 	if err := row.Scan(
-		&exercise.ID,
 		&exercise.Pos,
 		&exercise.Movement.ID,
 		&exercise.Movement.Name,
 	); err != nil {
 		return nil, err
 	}
+	exerciseSets, err := store.getExerciseSets(id)
+	if err != nil {
+		return nil, err
+	}
+	exercise.Sets = exerciseSets
+	return &exercise, nil
+}
 
+// GetByWorkoutID attempts to retrieves exercises for a given Workout
+// by the Workout's ID
+func (store ExerciseStore) GetByWorkoutID(id string) ([]*model.Exercise, error) {
+	var exercises []*model.Exercise
 	rows, err := store.source.Queryx(
-		`SELECT e.pos, e.reps, e.min_intensity, e.max_intensity, e.unit_id, u.name
-			FROM core.exercise_sets AS e
-			INNER JOIN core.units AS u ON e.unit_id=u.unit_id
-			WHERE e.exercise_id=$1`,
+		`SELECT e.exercise_id, e.pos, e.movement_id, m.name
+			FROM core.exercises AS e
+			INNER JOIN core.movements AS m ON e.movement_id=m.movement_id
+			WHERE e.workout_id=$1`,
 		id,
 	)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		set := model.ExerciseSet{Unit: &model.Unit{}}
+		exercise := model.Exercise{Movement: &model.Movement{}}
 		if err := rows.Scan(
-			&set.Pos,
-			&set.Reps,
-			&set.MinIntensity,
-			&set.MaxIntensity,
-			&set.Unit.ID,
-			&set.Unit.Name,
+			&exercise.ID,
+			&exercise.Pos,
+			&exercise.Movement.ID,
+			&exercise.Movement.Name,
 		); err != nil {
 			return nil, err
 		}
-		exercise.Sets = append(exercise.Sets, &set)
+		exercises = append(exercises, &exercise)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return &exercise, nil
+	for _, exercise := range exercises {
+		exerciseSets, err := store.getExerciseSets(exercise.ID)
+		if err != nil {
+			return nil, err
+		}
+		exercise.Sets = exerciseSets
+	}
+	return exercises, nil
 }
 
 func (store ExerciseStore) insertExercise(id, workoutID string, exercise *model.Exercise) error {
@@ -137,4 +152,36 @@ func (store ExerciseStore) insertExerciseSet(id string, set *model.ExerciseSet) 
 		unitID,
 	)
 	return err
+}
+
+func (store ExerciseStore) getExerciseSets(id string) ([]*model.ExerciseSet, error) {
+	var exerciseSets []*model.ExerciseSet
+	rows, err := store.source.Queryx(
+		`SELECT e.pos, e.reps, e.min_intensity, e.max_intensity, e.unit_id, u.name
+			FROM core.exercise_sets AS e
+			INNER JOIN core.units AS u ON e.unit_id=u.unit_id
+			WHERE e.exercise_id=$1`,
+		id,
+	)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		set := model.ExerciseSet{Unit: &model.Unit{}}
+		if err := rows.Scan(
+			&set.Pos,
+			&set.Reps,
+			&set.MinIntensity,
+			&set.MaxIntensity,
+			&set.Unit.ID,
+			&set.Unit.Name,
+		); err != nil {
+			return nil, err
+		}
+		exerciseSets = append(exerciseSets, &set)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return exerciseSets, nil
 }

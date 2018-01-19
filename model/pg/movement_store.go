@@ -42,11 +42,11 @@ func (store MovementStore) Create(movement *model.Movement) (string, error) {
 // its ID
 func (store MovementStore) Get(id string) (*model.Movement, error) {
 	row := store.source.QueryRowx(
-		"SELECT movement_id, name FROM core.movements WHERE movement_id=$1",
+		"SELECT name FROM core.movements WHERE movement_id=$1",
 		id,
 	)
-	movement := model.Movement{}
-	if err := row.Scan(&movement.ID, &movement.Name); err != nil {
+	movement := model.Movement{ID: id}
+	if err := row.Scan(&movement.Name); err != nil {
 		return nil, err
 	}
 	return &movement, nil
@@ -56,11 +56,11 @@ func (store MovementStore) Get(id string) (*model.Movement, error) {
 // name
 func (store MovementStore) GetByName(name string) (*model.Movement, error) {
 	row := store.source.QueryRowx(
-		"SELECT movement_id, name FROM core.movements WHERE name=$1",
+		"SELECT movement_id FROM core.movements WHERE name=$1",
 		name,
 	)
-	movement := model.Movement{}
-	if err := row.Scan(&movement.ID, &movement.Name); err != nil {
+	movement := model.Movement{Name: name}
+	if err := row.Scan(&movement.ID); err != nil {
 		return nil, err
 	}
 	return &movement, nil

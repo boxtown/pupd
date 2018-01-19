@@ -48,3 +48,22 @@ func (store WorkoutStore) Create(workout *model.Workout) (string, error) {
 	}
 	return id, nil
 }
+
+// Get attempts to retrieve a Workout from storage by
+// its ID
+func (store WorkoutStore) Get(id string) (*model.Workout, error) {
+	row := store.source.QueryRowx(
+		"SELECT name FROM core.workouts WHERE workout_id=$1",
+		id,
+	)
+	workout := model.Workout{ID: id}
+	if err := row.Scan(&workout.Name); err != nil {
+		return nil, err
+	}
+	workoutExercises, err := store.exercises.GetByWorkoutID(id)
+	if err != nil {
+		return nil, err
+	}
+	workout.Exercises = workoutExercises
+	return &workout, nil
+}

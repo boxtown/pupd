@@ -42,11 +42,11 @@ func (store UnitStore) Create(unit *model.Unit) (string, error) {
 // by its ID
 func (store UnitStore) Get(id string) (*model.Unit, error) {
 	row := store.source.QueryRowx(
-		"SELECT unit_id, name FROM core.units WHERE unit_id=$1",
+		"SELECT name FROM core.units WHERE unit_id=$1",
 		id,
 	)
-	unit := model.Unit{}
-	if err := row.Scan(&unit.ID, &unit.Name); err != nil {
+	unit := model.Unit{ID: id}
+	if err := row.Scan(&unit.Name); err != nil {
 		return nil, err
 	}
 	return &unit, nil
@@ -56,11 +56,11 @@ func (store UnitStore) Get(id string) (*model.Unit, error) {
 // by name
 func (store UnitStore) GetByName(name string) (*model.Unit, error) {
 	row := store.source.QueryRowx(
-		"SELECT unit_id, name FROM core.units WHERE name=$1",
+		"SELECT unit_id FROM core.units WHERE name=$1",
 		name,
 	)
-	unit := model.Unit{}
-	if err := row.Scan(&unit.ID, &unit.Name); err != nil {
+	unit := model.Unit{Name: name}
+	if err := row.Scan(&unit.ID); err != nil {
 		return nil, err
 	}
 	return &unit, nil

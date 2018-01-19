@@ -23,10 +23,12 @@ type UnitStore interface {
 // WorkoutStore defines an interface for a store of Workouts
 type WorkoutStore interface {
 	Create(workout *Workout) (string, error)
+	Get(id string) (*Workout, error)
 }
 
 // ExerciseStore defines an interface for a store of Exercises
 type ExerciseStore interface {
 	Create(workoutID string, exercise *Exercise) (string, error)
 	Get(id string) (*Exercise, error)
+	GetByWorkoutID(id string) ([]*Exercise, error)
 }
