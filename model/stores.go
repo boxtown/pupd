@@ -5,7 +5,7 @@ type MovementStore interface {
 	Create(movement *Movement) (string, error)
 	Get(id string) (*Movement, error)
 	GetByName(name string) (*Movement, error)
-	List() ([]Movement, error)
+	List() ([]*Movement, error)
 	Update(movement *Movement) error
 	Delete(id string) error
 }
@@ -15,7 +15,7 @@ type UnitStore interface {
 	Create(unit *Unit) (string, error)
 	Get(id string) (*Unit, error)
 	GetByName(name string) (*Unit, error)
-	List() ([]Unit, error)
+	List() ([]*Unit, error)
 	Update(unit *Unit) error
 	Delete(id string) error
 }
@@ -24,6 +24,7 @@ type UnitStore interface {
 type WorkoutStore interface {
 	Create(workout *Workout) (string, error)
 	Get(id string) (*Workout, error)
+	List() ([]*Workout, error)
 }
 
 // ExerciseStore defines an interface for a store of Exercises

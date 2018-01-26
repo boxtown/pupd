@@ -15,7 +15,7 @@ type mockMovementStore struct {
 	create    func(movement *model.Movement) (string, error)
 	get       func(id string) (*model.Movement, error)
 	getByName func(name string) (*model.Movement, error)
-	list      func() ([]model.Movement, error)
+	list      func() ([]*model.Movement, error)
 	update    func(movement *model.Movement) error
 	delete    func(id string) error
 }
@@ -32,7 +32,7 @@ func (store mockMovementStore) GetByName(name string) (*model.Movement, error) {
 	return store.getByName(name)
 }
 
-func (store mockMovementStore) List() ([]model.Movement, error) {
+func (store mockMovementStore) List() ([]*model.Movement, error) {
 	return store.list()
 }
 
@@ -45,12 +45,12 @@ func (store mockMovementStore) Delete(id string) error {
 }
 
 func TestListMovements(t *testing.T) {
-	movements := []model.Movement{
-		model.Movement{ID: "Test ID", Name: "Test Name"},
-		model.Movement{ID: "Test ID 2", Name: "Test Name 2"},
+	movements := []*model.Movement{
+		&model.Movement{ID: "Test ID", Name: "Test Name"},
+		&model.Movement{ID: "Test ID 2", Name: "Test Name 2"},
 	}
 	store := mockMovementStore{
-		list: func() ([]model.Movement, error) {
+		list: func() ([]*model.Movement, error) {
 			return movements, nil
 		},
 	}
@@ -69,7 +69,7 @@ func TestListMovements(t *testing.T) {
 func TestListMovementErrors(t *testing.T) {
 	// Test store returns an error
 	store := mockMovementStore{
-		list: func() ([]model.Movement, error) {
+		list: func() ([]*model.Movement, error) {
 			return nil, errors.New("test")
 		},
 	}
@@ -81,7 +81,7 @@ func TestListMovementErrors(t *testing.T) {
 
 	// Test store returns un-encodable result
 	store = mockMovementStore{
-		list: func() ([]model.Movement, error) {
+		list: func() ([]*model.Movement, error) {
 			return nil, nil
 		},
 	}

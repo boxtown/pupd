@@ -67,20 +67,20 @@ func (store UnitStore) GetByName(name string) (*model.Unit, error) {
 }
 
 // List lists all Units from storage
-func (store UnitStore) List() ([]model.Unit, error) {
+func (store UnitStore) List() ([]*model.Unit, error) {
 	rows, err := store.source.Query("SELECT unit_id, name FROM core.units")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	units := []model.Unit{}
+	units := []*model.Unit{}
 	for rows.Next() {
 		unit := model.Unit{}
 		if err := rows.Scan(&unit.ID, &unit.Name); err != nil {
 			return nil, err
 		}
-		units = append(units, unit)
+		units = append(units, &unit)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err

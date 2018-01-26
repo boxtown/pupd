@@ -67,3 +67,32 @@ func (store WorkoutStore) Get(id string) (*model.Workout, error) {
 	workout.Exercises = workoutExercises
 	return &workout, nil
 }
+
+// List lists all Workouts from storage
+func (store WorkoutStore) List() ([]*model.Workout, error) {
+	rows, err := store.source.Query("SELECT workout_id, name FROM core.workouts")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	workouts := []*model.Workout{}
+	for rows.Next() {
+		workout := model.Workout{}
+		if err := rows.Scan(&workout.ID, &workout.Name); err != nil {
+			return nil, err
+		}
+		workouts = append(workouts, &workout)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	for _, workout := range workouts {
+		workoutExercises, err := store.exercises.GetByWorkoutID(workout.ID)
+		if err != nil {
+			return nil, err
+		}
+		workout.Exercises = workoutExercises
+	}
+	return workouts, nil
+}

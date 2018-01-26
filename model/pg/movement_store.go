@@ -67,20 +67,20 @@ func (store MovementStore) GetByName(name string) (*model.Movement, error) {
 }
 
 // List lists all Movements from storage
-func (store MovementStore) List() ([]model.Movement, error) {
+func (store MovementStore) List() ([]*model.Movement, error) {
 	rows, err := store.source.Query("SELECT movement_id, name FROM core.movements")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	movements := []model.Movement{}
+	movements := []*model.Movement{}
 	for rows.Next() {
 		movement := model.Movement{}
 		if err := rows.Scan(&movement.ID, &movement.Name); err != nil {
 			return nil, err
 		}
-		movements = append(movements, movement)
+		movements = append(movements, &movement)
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
