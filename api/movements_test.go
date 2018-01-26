@@ -67,7 +67,7 @@ func TestListMovements(t *testing.T) {
 }
 
 func TestListMovementErrors(t *testing.T) {
-	// Test store throws an error
+	// Test store returns an error
 	store := mockMovementStore{
 		list: func() ([]model.Movement, error) {
 			return nil, errors.New("test")
@@ -76,7 +76,7 @@ func TestListMovementErrors(t *testing.T) {
 	response := httptest.NewRecorder()
 	listMovementsFn(store)(response, nil)
 	if response.Code != http.StatusInternalServerError {
-		t.Errorf("Expedcted code %d, got %d", http.StatusInternalServerError, response.Code)
+		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
 
 	// Test store returns un-encodable result
@@ -87,6 +87,85 @@ func TestListMovementErrors(t *testing.T) {
 	}
 	listMovementsFn(store)(response, nil)
 	if response.Code != http.StatusInternalServerError {
-		t.Errorf("Expedcted code %d, got %d", http.StatusInternalServerError, response.Code)
+		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
+	}
+}
+
+func TestCreateMovement(t *testing.T) {
+	store := mockMovementStore{
+		create: func(*model.Movement) (string, error) {
+			return "test", nil
+		},
+	}
+	response := httptest.NewRecorder()
+
+	movement := model.Movement{Name: "Test Movement"}
+	buf := bytes.Buffer{}
+	err := json.NewEncoder(&buf).Encode(movement)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+
+	request, err := http.NewRequest("POST", "/movements", &buf)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	createMovementFn(store)(response, request)
+
+	if response.Code != http.StatusCreated {
+		t.Errorf("Expected code %d, got %d", http.StatusCreated, response.Code)
+	}
+	location := response.Header().Get("Location")
+	if location != "/movements/test" {
+		t.Errorf("Expected Location header %s, got %s", "/movements/test", location)
+	}
+}
+
+func TestCreateMovementErrors(t *testing.T) {
+	// Test bad JSON
+	store := mockMovementStore{
+		create: func(*model.Movement) (string, error) {
+			return "test", nil
+		},
+	}
+	response := httptest.NewRecorder()
+
+	buf := bytes.Buffer{}
+	_, err := buf.WriteString("Not JSON")
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	request, err := http.NewRequest("POST", "/movements", &buf)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	createMovementFn(store)(response, request)
+
+	if response.Code != http.StatusBadRequest {
+		t.Errorf("Expected code %d, got %d", http.StatusBadRequest, response.Code)
+	}
+
+	// Test store returns an error
+	store = mockMovementStore{
+		create: func(*model.Movement) (string, error) {
+			return "", errors.New("test")
+		},
+	}
+	response = httptest.NewRecorder()
+
+	movement := model.Movement{Name: "Test Movement"}
+	buf = bytes.Buffer{}
+	err = json.NewEncoder(&buf).Encode(movement)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	request, err = http.NewRequest("POST", "/movements", &buf)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	createMovementFn(store)(response, request)
+
+	if response.Code != http.StatusInternalServerError {
+		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
 }
