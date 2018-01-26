@@ -142,13 +142,11 @@ func (store ExerciseStore) insertExerciseSet(id string, set *model.ExerciseSet) 
 		unitID = unit.ID
 	}
 	_, err := store.source.Exec(
-		`INSERT INTO core.exercise_sets (exercise_id, pos, reps, min_intensity, max_intensity, unit_id)
-			VALUES ($1, $2, $3, $4, $5, $6)`,
+		`INSERT INTO core.exercise_sets (exercise_id, pos, reps, unit_id)
+			VALUES ($1, $2, $3, $4)`,
 		id,
 		set.Pos,
 		set.Reps,
-		set.MinIntensity,
-		set.MaxIntensity,
 		unitID,
 	)
 	return err
@@ -157,7 +155,7 @@ func (store ExerciseStore) insertExerciseSet(id string, set *model.ExerciseSet) 
 func (store ExerciseStore) getExerciseSets(id string) ([]*model.ExerciseSet, error) {
 	var exerciseSets []*model.ExerciseSet
 	rows, err := store.source.Queryx(
-		`SELECT e.pos, e.reps, e.min_intensity, e.max_intensity, e.unit_id, u.name
+		`SELECT e.pos, e.reps, e.unit_id, u.name
 			FROM core.exercise_sets AS e
 			INNER JOIN core.units AS u ON e.unit_id=u.unit_id
 			WHERE e.exercise_id=$1`,
@@ -171,8 +169,6 @@ func (store ExerciseStore) getExerciseSets(id string) ([]*model.ExerciseSet, err
 		if err := rows.Scan(
 			&set.Pos,
 			&set.Reps,
-			&set.MinIntensity,
-			&set.MaxIntensity,
 			&set.Unit.ID,
 			&set.Unit.Name,
 		); err != nil {

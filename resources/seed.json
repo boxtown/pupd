@@ -20,19 +20,16 @@
                         {
                             "pos": 0,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 1,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 2,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         }
                     ]
@@ -44,19 +41,16 @@
                         {
                             "pos": 0,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 1,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 2,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         }
                     ]
@@ -68,19 +62,16 @@
                         {
                             "pos": 0,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 1,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 2,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         }
                     ]
@@ -97,19 +88,16 @@
                         {
                             "pos": 0,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 1,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 2,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         }
                     ]
@@ -121,19 +109,16 @@
                         {
                             "pos": 0,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 1,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 2,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         }
                     ]
@@ -145,19 +130,16 @@
                         {
                             "pos": 0,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 1,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         },
                         {
                             "pos": 2,
                             "reps": 5,
-                            "minIntensity": 0.9,
                             "unit": { "name" : "%" }
                         }
                     ]

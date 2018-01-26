@@ -59,14 +59,17 @@ func TestListMovements(t *testing.T) {
 	if response.Code != http.StatusOK {
 		t.Errorf("Expected code %d, got %d", http.StatusOK, response.Code)
 	}
-	var expected bytes.Buffer
-	json.NewEncoder(&expected).Encode(movements)
+	expected := bytes.Buffer{}
+	err := json.NewEncoder(&expected).Encode(movements)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !bytes.Equal(response.Body.Bytes(), expected.Bytes()) {
 		t.Errorf("Response body does not match expected value")
 	}
 }
 
-func TestListMovementErrors(t *testing.T) {
+func TestListMovementsErrors(t *testing.T) {
 	// Test store returns an error
 	store := mockMovementStore{
 		list: func() ([]*model.Movement, error) {
@@ -98,20 +101,17 @@ func TestCreateMovement(t *testing.T) {
 		},
 	}
 	response := httptest.NewRecorder()
-
 	movement := model.Movement{Name: "Test Movement"}
 	buf := bytes.Buffer{}
 	err := json.NewEncoder(&buf).Encode(movement)
 	if err != nil {
-		t.Fatal(err.Error())
+		t.Fatal(err)
 	}
-
 	request, err := http.NewRequest("POST", "/movements", &buf)
 	if err != nil {
-		t.Fatal(err.Error())
+		t.Fatal(err)
 	}
 	createMovementFn(store)(response, request)
-
 	if response.Code != http.StatusCreated {
 		t.Errorf("Expected code %d, got %d", http.StatusCreated, response.Code)
 	}
@@ -129,18 +129,16 @@ func TestCreateMovementErrors(t *testing.T) {
 		},
 	}
 	response := httptest.NewRecorder()
-
 	buf := bytes.Buffer{}
 	_, err := buf.WriteString("Not JSON")
 	if err != nil {
-		t.Fatal(err.Error())
+		t.Fatal(err)
 	}
 	request, err := http.NewRequest("POST", "/movements", &buf)
 	if err != nil {
-		t.Fatal(err.Error())
+		t.Fatal(err)
 	}
 	createMovementFn(store)(response, request)
-
 	if response.Code != http.StatusBadRequest {
 		t.Errorf("Expected code %d, got %d", http.StatusBadRequest, response.Code)
 	}
@@ -152,19 +150,17 @@ func TestCreateMovementErrors(t *testing.T) {
 		},
 	}
 	response = httptest.NewRecorder()
-
 	movement := model.Movement{Name: "Test Movement"}
 	buf = bytes.Buffer{}
 	err = json.NewEncoder(&buf).Encode(movement)
 	if err != nil {
-		t.Fatal(err.Error())
+		t.Fatal(err)
 	}
 	request, err = http.NewRequest("POST", "/movements", &buf)
 	if err != nil {
-		t.Fatal(err.Error())
+		t.Fatal(err)
 	}
 	createMovementFn(store)(response, request)
-
 	if response.Code != http.StatusInternalServerError {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}

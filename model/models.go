@@ -23,11 +23,9 @@ type Unit struct {
 // with a given number of reps, intensity range, unit of work
 // and position within the set
 type ExerciseSet struct {
-	Pos          int      `json:"pos"`
-	Reps         int      `json:"reps"`
-	MinIntensity float32  `json:"minIntensity"`
-	MaxIntensity *float32 `json:"maxIntensity,omitempty"`
-	Unit         *Unit    `json:"unit"`
+	Pos  int   `json:"pos"`
+	Reps int   `json:"reps"`
+	Unit *Unit `json:"unit"`
 }
 
 // Exercise is a collection of variable sets for a single movement
