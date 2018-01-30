@@ -100,15 +100,4 @@ func TestListWorkoutsErrors(t *testing.T) {
 	if response.Code != http.StatusInternalServerError {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
-
-	// Test store returns an un-encodable result
-	store = mockWorkoutStore{
-		list: func() ([]*model.Workout, error) {
-			return nil, nil
-		},
-	}
-	listWorkoutsFn(store)(response, nil)
-	if response.Code != http.StatusInternalServerError {
-		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
-	}
 }

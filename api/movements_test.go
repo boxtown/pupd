@@ -81,17 +81,6 @@ func TestListMovementsErrors(t *testing.T) {
 	if response.Code != http.StatusInternalServerError {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
-
-	// Test store returns un-encodable result
-	store = mockMovementStore{
-		list: func() ([]*model.Movement, error) {
-			return nil, nil
-		},
-	}
-	listMovementsFn(store)(response, nil)
-	if response.Code != http.StatusInternalServerError {
-		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
-	}
 }
 
 func TestCreateMovement(t *testing.T) {
