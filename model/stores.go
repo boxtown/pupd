@@ -1,5 +1,16 @@
 package model
 
+import "github.com/jmoiron/sqlx"
+
+// Stores is a factory class for retrieving
+// stores given a data source
+type Stores interface {
+	Movements(source sqlx.Ext) MovementStore
+	Units(source sqlx.Ext) UnitStore
+	Workouts(source sqlx.Ext) WorkoutStore
+	Exercises(source sqlx.Ext) ExerciseStore
+}
+
 // MovementStore defines an interface for a store of Movements
 type MovementStore interface {
 	Create(movement *Movement) (string, error)

@@ -33,7 +33,7 @@ var startCmd = &cobra.Command{
 		}
 		defer source.Close()
 
-		routes := api.Router(source)
+		routes := api.Router(source, pg.Stores{})
 		s := &http.Server{Addr: ":3000", Handler: routes}
 
 		stop := make(chan os.Signal, 1)

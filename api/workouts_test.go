@@ -11,24 +11,6 @@ import (
 	"github.com/boxtown/pupd/model"
 )
 
-type mockWorkoutStore struct {
-	create func(workout *model.Workout) (string, error)
-	get    func(id string) (*model.Workout, error)
-	list   func() ([]*model.Workout, error)
-}
-
-func (store mockWorkoutStore) Create(workout *model.Workout) (string, error) {
-	return store.create(workout)
-}
-
-func (store mockWorkoutStore) Get(id string) (*model.Workout, error) {
-	return store.get(id)
-}
-
-func (store mockWorkoutStore) List() ([]*model.Workout, error) {
-	return store.list()
-}
-
 func TestListWorkouts(t *testing.T) {
 	workouts := []*model.Workout{
 		&model.Workout{
@@ -74,12 +56,16 @@ func TestListWorkouts(t *testing.T) {
 		},
 	}
 	response := httptest.NewRecorder()
-	listWorkoutsFn(store)(response, nil)
+	request, err := http.NewRequest("GET", "/workouts", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	Router(nil, mockStores{mockWorkoutStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusOK {
 		t.Errorf("Expected code %d, got %d", http.StatusOK, response.Code)
 	}
 	expected := bytes.Buffer{}
-	err := json.NewEncoder(&expected).Encode(workouts)
+	err = json.NewEncoder(&expected).Encode(workouts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -96,7 +82,11 @@ func TestListWorkoutsErrors(t *testing.T) {
 		},
 	}
 	response := httptest.NewRecorder()
-	listWorkoutsFn(store)(response, nil)
+	request, err := http.NewRequest("GET", "/workouts", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	Router(nil, mockStores{mockWorkoutStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusInternalServerError {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
