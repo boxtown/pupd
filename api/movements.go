@@ -6,10 +6,9 @@ import (
 	"net/http"
 
 	"github.com/boxtown/pupd/model"
-	"github.com/boxtown/pupd/model/pg"
 )
 
-func listMovementsFn(source *pg.DataSource, stores model.Stores) http.HandlerFunc {
+func listMovementsFn(source model.DataSource, stores model.Stores) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		store := stores.Movements(source)
 		movements, err := store.List()
@@ -21,7 +20,7 @@ func listMovementsFn(source *pg.DataSource, stores model.Stores) http.HandlerFun
 	}
 }
 
-func createMovementFn(source *pg.DataSource, stores model.Stores) http.HandlerFunc {
+func createMovementFn(source model.DataSource, stores model.Stores) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		movement := model.Movement{}
 		if err := json.NewDecoder(r.Body).Decode(&movement); err != nil {
@@ -35,7 +34,7 @@ func createMovementFn(source *pg.DataSource, stores model.Stores) http.HandlerFu
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
-		w.Header().Add("Location", fmt.Sprintf("/movements/%s", id))
+		w.Header().Set("Location", fmt.Sprintf("/movements/%s", id))
 		return
 	}
 }

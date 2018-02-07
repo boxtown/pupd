@@ -35,7 +35,7 @@ func NewDataSource(connStr string) (*DataSource, error) {
 // If an error is returned by the handler or occurs during execution
 // of the `handler` function, there will be an attempt to rollback the
 // transaction.
-func (source DataSource) Transaction(handler func(*sqlx.Tx) error) error {
+func (source DataSource) Transaction(handler func(sqlx.Ext) error) error {
 	tx, err := source.Beginx()
 	if err != nil {
 		return err

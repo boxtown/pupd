@@ -10,6 +10,7 @@ import (
 
 	"github.com/boxtown/pupd/model"
 	"github.com/boxtown/pupd/model/mock"
+	"github.com/jmoiron/sqlx"
 )
 
 func TestListWorkouts(t *testing.T) {
@@ -99,12 +100,25 @@ func TestCreateWorkout(t *testing.T) {
 			return "test", nil
 		},
 	}
+	stores := mock.MockStores{MockWorkoutStore: store}
+	dataSource := mock.MockDataSource{
+		TransactionFn: func(handler func(sqlx.Ext) error) error {
+			return handler(nil)
+		},
+	}
+
 	response := httptest.NewRecorder()
-	request, err := http.NewRequest("POST", "/workouts", nil)
+	workout := model.Workout{Name: "Test Workout"}
+	buf := bytes.Buffer{}
+	err := json.NewEncoder(&buf).Encode(workout)
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mock.MockStores{MockWorkoutStore: store}).ServeHTTP(response, request)
+	request, err := http.NewRequest("POST", "/workouts", &buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	Router(dataSource, stores).ServeHTTP(response, request)
 	if response.Code != http.StatusCreated {
 		t.Errorf("Expected code %d, got %d", http.StatusCreated, response.Code)
 	}
