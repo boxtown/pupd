@@ -19,3 +19,10 @@ func listWorkoutsFn(source *pg.DataSource, stores model.Stores) http.HandlerFunc
 		json.NewEncoder(w).Encode(workouts)
 	}
 }
+
+func createWorkoutsFn(source *pg.DataSource, stores model.Stores) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "/workouts/test")
+		w.WriteHeader(http.StatusCreated)
+	}
+}

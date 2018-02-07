@@ -91,3 +91,24 @@ func TestListWorkoutsErrors(t *testing.T) {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
 }
+
+func TestCreateWorkout(t *testing.T) {
+	store := mockWorkoutStore{
+		create: func(workout *model.Workout) (string, error) {
+			return "test", nil
+		},
+	}
+	response := httptest.NewRecorder()
+	request, err := http.NewRequest("POST", "/workouts", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	Router(nil, mockStores{mockWorkoutStore: store}).ServeHTTP(response, request)
+	if response.Code != http.StatusCreated {
+		t.Errorf("Expected code %d, got %d", http.StatusCreated, response.Code)
+	}
+	location := response.Header().Get("Location")
+	if location != "/workouts/test" {
+		t.Errorf("Expected Location header %s, got %s", "/workouts/test", location)
+	}
+}

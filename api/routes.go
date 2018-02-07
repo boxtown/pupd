@@ -25,6 +25,7 @@ func Router(source *pg.DataSource, stores model.Stores) http.Handler {
 	})
 	r.Route("/workouts", func(r chi.Router) {
 		r.Get("/", listWorkoutsFn(source, stores))
+		r.Post("/", createWorkoutsFn(source, stores))
 	})
 	return r
 }
