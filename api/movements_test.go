@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/boxtown/pupd/model"
+	"github.com/boxtown/pupd/model/mock"
 )
 
 func TestListMovements(t *testing.T) {
@@ -16,8 +17,8 @@ func TestListMovements(t *testing.T) {
 		&model.Movement{ID: "Test ID", Name: "Test Name"},
 		&model.Movement{ID: "Test ID 2", Name: "Test Name 2"},
 	}
-	store := mockMovementStore{
-		list: func() ([]*model.Movement, error) {
+	store := mock.MockMovementStore{
+		ListFn: func() ([]*model.Movement, error) {
 			return movements, nil
 		},
 	}
@@ -26,7 +27,7 @@ func TestListMovements(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockMovementStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockMovementStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusOK {
 		t.Errorf("Expected code %d, got %d", http.StatusOK, response.Code)
 	}
@@ -42,8 +43,8 @@ func TestListMovements(t *testing.T) {
 
 func TestListMovementsErrors(t *testing.T) {
 	// Test store returns an error
-	store := mockMovementStore{
-		list: func() ([]*model.Movement, error) {
+	store := mock.MockMovementStore{
+		ListFn: func() ([]*model.Movement, error) {
 			return nil, errors.New("test")
 		},
 	}
@@ -52,15 +53,15 @@ func TestListMovementsErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockMovementStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockMovementStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusInternalServerError {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
 }
 
 func TestCreateMovement(t *testing.T) {
-	store := mockMovementStore{
-		create: func(*model.Movement) (string, error) {
+	store := mock.MockMovementStore{
+		CreateFn: func(*model.Movement) (string, error) {
 			return "test", nil
 		},
 	}
@@ -75,7 +76,7 @@ func TestCreateMovement(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockMovementStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockMovementStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusCreated {
 		t.Errorf("Expected code %d, got %d", http.StatusCreated, response.Code)
 	}
@@ -87,8 +88,8 @@ func TestCreateMovement(t *testing.T) {
 
 func TestCreateMovementErrors(t *testing.T) {
 	// Test bad JSON
-	store := mockMovementStore{
-		create: func(*model.Movement) (string, error) {
+	store := mock.MockMovementStore{
+		CreateFn: func(*model.Movement) (string, error) {
 			return "test", nil
 		},
 	}
@@ -102,14 +103,14 @@ func TestCreateMovementErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockMovementStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockMovementStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusBadRequest {
 		t.Errorf("Expected code %d, got %d", http.StatusBadRequest, response.Code)
 	}
 
 	// Test store returns an error
-	store = mockMovementStore{
-		create: func(*model.Movement) (string, error) {
+	store = mock.MockMovementStore{
+		CreateFn: func(*model.Movement) (string, error) {
 			return "", errors.New("test")
 		},
 	}
@@ -124,7 +125,7 @@ func TestCreateMovementErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockMovementStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockMovementStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusInternalServerError {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}

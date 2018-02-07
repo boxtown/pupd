@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/boxtown/pupd/model"
+	"github.com/boxtown/pupd/model/mock"
 )
 
 func TestListWorkouts(t *testing.T) {
@@ -50,8 +51,8 @@ func TestListWorkouts(t *testing.T) {
 			Exercises: []*model.Exercise{},
 		},
 	}
-	store := mockWorkoutStore{
-		list: func() ([]*model.Workout, error) {
+	store := mock.MockWorkoutStore{
+		ListFn: func() ([]*model.Workout, error) {
 			return workouts, nil
 		},
 	}
@@ -60,7 +61,7 @@ func TestListWorkouts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockWorkoutStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockWorkoutStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusOK {
 		t.Errorf("Expected code %d, got %d", http.StatusOK, response.Code)
 	}
@@ -76,8 +77,8 @@ func TestListWorkouts(t *testing.T) {
 
 func TestListWorkoutsErrors(t *testing.T) {
 	// Test store returns an error
-	store := mockWorkoutStore{
-		list: func() ([]*model.Workout, error) {
+	store := mock.MockWorkoutStore{
+		ListFn: func() ([]*model.Workout, error) {
 			return nil, errors.New("test")
 		},
 	}
@@ -86,15 +87,15 @@ func TestListWorkoutsErrors(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockWorkoutStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockWorkoutStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusInternalServerError {
 		t.Errorf("Expected code %d, got %d", http.StatusInternalServerError, response.Code)
 	}
 }
 
 func TestCreateWorkout(t *testing.T) {
-	store := mockWorkoutStore{
-		create: func(workout *model.Workout) (string, error) {
+	store := mock.MockWorkoutStore{
+		CreateFn: func(workout *model.Workout) (string, error) {
 			return "test", nil
 		},
 	}
@@ -103,7 +104,7 @@ func TestCreateWorkout(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	Router(nil, mockStores{mockWorkoutStore: store}).ServeHTTP(response, request)
+	Router(nil, mock.MockStores{MockWorkoutStore: store}).ServeHTTP(response, request)
 	if response.Code != http.StatusCreated {
 		t.Errorf("Expected code %d, got %d", http.StatusCreated, response.Code)
 	}
