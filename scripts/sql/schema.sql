@@ -14,12 +14,6 @@ CREATE TABLE IF NOT EXISTS movements (
 );
 GRANT ALL ON movements TO pupd_api;
 
-CREATE TABLE IF NOT EXISTS units (
-    unit_id uuid PRIMARY KEY,
-    name text UNIQUE NOT NULL
-);
-GRANT ALL ON units TO pupd_api;
-
 CREATE TABLE IF NOT EXISTS workouts (
     workout_id uuid PRIMARY KEY,
     name text UNIQUE NOT NULL
@@ -39,7 +33,6 @@ CREATE TABLE IF NOT EXISTS exercise_sets (
     exercise_id uuid REFERENCES exercises,
     pos integer,
     reps integer NOT NULL,
-    unit_id uuid NOT NULL REFERENCES units,
     PRIMARY KEY (exercise_id, pos)
 );
 GRANT ALL ON exercise_sets TO pupd_api;

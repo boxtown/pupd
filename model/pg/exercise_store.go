@@ -2,49 +2,31 @@ package pg
 
 import (
 	"github.com/boxtown/pupd/model"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 // ExerciseStore implements model.ExerciseStore
 // using PostgreSQL
 type ExerciseStore struct {
+	*AbstractStore
 	source    sqlx.Ext
 	movements model.MovementStore
-	units     model.UnitStore
 }
 
 // NewExerciseStore returns a PostgreSQL-backed implementation
 // of model.ExerciseStore
-func NewExerciseStore(source sqlx.Ext) model.ExerciseStore {
-	return &ExerciseStore{
+func NewExerciseStore(source sqlx.Ext, configs ...StoreConfig) model.ExerciseStore {
+	store := &ExerciseStore{
+		AbstractStore: &AbstractStore{
+			idGen: UUIDV4Generator{},
+		},
 		source:    source,
 		movements: NewMovementStore(source),
-		units:     NewUnitStore(source),
 	}
-}
-
-// Create attempts to create a record for the given Exercise
-// in the store. Any related records (i.e. for Sets) will also
-// be created. A v4 UUID will be assigned to the Exercise
-// and is returned by this method.
-func (store ExerciseStore) Create(workoutID string, exercise *model.Exercise) (string, error) {
-	raw, err := uuid.NewRandom()
-	if err != nil {
-		return "", err
+	for _, config := range configs {
+		config(store.AbstractStore)
 	}
-	id := raw.String()
-
-	if err = store.insertExercise(id, workoutID, exercise); err != nil {
-		return "", err
-	}
-	for _, set := range exercise.Sets {
-		// TODO: ensure proper Pos field?
-		if err = store.insertExerciseSet(id, set); err != nil {
-			return "", err
-		}
-	}
-	return id, nil
+	return store
 }
 
 // Get attempts to retrieve an Exercise from storage by
@@ -112,65 +94,20 @@ func (store ExerciseStore) GetByWorkoutID(id string) ([]*model.Exercise, error) 
 	return exercises, nil
 }
 
-func (store ExerciseStore) insertExercise(id, workoutID string, exercise *model.Exercise) error {
-	movementID := exercise.Movement.ID
-	if len(movementID) == 0 {
-		movement, err := store.movements.GetByName(exercise.Movement.Name)
-		if err != nil {
-			return err
-		}
-		movementID = movement.ID
-	}
-	_, err := store.source.Exec(
-		"INSERT INTO core.exercises (exercise_id, workout_id, pos, movement_id) VALUES ($1, $2, $3, $4)",
-		id,
-		workoutID,
-		exercise.Pos,
-		movementID,
-	)
-	return err
-}
-
-func (store ExerciseStore) insertExerciseSet(id string, set *model.ExerciseSet) error {
-	// TODO: ensure proper Pos field?
-	unitID := set.Unit.ID
-	if len(unitID) == 0 {
-		unit, err := store.units.GetByName(set.Unit.Name)
-		if err != nil {
-			return err
-		}
-		unitID = unit.ID
-	}
-	_, err := store.source.Exec(
-		`INSERT INTO core.exercise_sets (exercise_id, pos, reps, unit_id)
-			VALUES ($1, $2, $3, $4)`,
-		id,
-		set.Pos,
-		set.Reps,
-		unitID,
-	)
-	return err
-}
-
 func (store ExerciseStore) getExerciseSets(id string) ([]*model.ExerciseSet, error) {
 	var exerciseSets []*model.ExerciseSet
 	rows, err := store.source.Queryx(
-		`SELECT e.pos, e.reps, e.unit_id, u.name
-			FROM core.exercise_sets AS e
-			INNER JOIN core.units AS u ON e.unit_id=u.unit_id
-			WHERE e.exercise_id=$1`,
+		"SELECT e.pos, e.reps FROM core.exercise_sets AS e WHERE e.exercise_id=$1",
 		id,
 	)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		set := model.ExerciseSet{Unit: &model.Unit{}}
+		set := model.ExerciseSet{}
 		if err := rows.Scan(
 			&set.Pos,
 			&set.Reps,
-			&set.Unit.ID,
-			&set.Unit.Name,
 		); err != nil {
 			return nil, err
 		}

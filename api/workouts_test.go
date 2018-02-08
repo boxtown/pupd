@@ -18,38 +18,10 @@ func TestListWorkouts(t *testing.T) {
 		&model.Workout{
 			ID:   "Test ID",
 			Name: "Test Name",
-			Exercises: []*model.Exercise{
-				&model.Exercise{
-					ID: "Test Exercise ID",
-					Movement: &model.Movement{
-						ID:   "Test Movement ID",
-						Name: "Test Movement Name",
-					},
-					Sets: []*model.ExerciseSet{
-						&model.ExerciseSet{
-							Pos:  0,
-							Reps: 5,
-							Unit: &model.Unit{
-								ID:   "Test Unit ID",
-								Name: "Test Unit Name",
-							},
-						},
-						&model.ExerciseSet{
-							Pos:  1,
-							Reps: 5,
-							Unit: &model.Unit{
-								ID:   "Test Unit ID",
-								Name: "Test Unit Name",
-							},
-						},
-					},
-				},
-			},
 		},
 		&model.Workout{
-			ID:        "Test ID 2",
-			Name:      "Test Name 2",
-			Exercises: []*model.Exercise{},
+			ID:   "Test ID 2",
+			Name: "Test Name 2",
 		},
 	}
 	store := mock.MockWorkoutStore{

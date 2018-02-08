@@ -3,10 +3,31 @@ package pg
 import (
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	// Only import pq if using pg model package
 	_ "github.com/lib/pq"
 )
+
+// IDGenerator is an interface for a universally unique
+// ID generator
+type IDGenerator interface {
+	Generate() (string, error)
+}
+
+// UUIDV4Generator is an IDGenerator implementation
+// that generates v4 UUIDs
+type UUIDV4Generator struct{}
+
+// Generate generates a v4 UUID string or returns an error
+// if there was an issue during generation
+func (gen UUIDV4Generator) Generate() (string, error) {
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return "", err
+	}
+	return id.String(), nil
+}
 
 // DataSource represents a PostgreSQL data source
 // to be used with `pg` stores

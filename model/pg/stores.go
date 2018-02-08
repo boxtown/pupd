@@ -14,11 +14,6 @@ func (store Stores) Movements(source sqlx.Ext) model.MovementStore {
 	return NewMovementStore(source)
 }
 
-// Units returns a PostgreSQL backed `model.UnitStore`
-func (store Stores) Units(source sqlx.Ext) model.UnitStore {
-	return NewUnitStore(source)
-}
-
 // Workouts returns a PostgreSQL backed `model.WorkoutStore`
 func (store Stores) Workouts(source sqlx.Ext) model.WorkoutStore {
 	return NewWorkoutStore(source)
@@ -27,4 +22,23 @@ func (store Stores) Workouts(source sqlx.Ext) model.WorkoutStore {
 // Exercises returns a PostgreSQL backed `model.ExerciseStore`
 func (store Stores) Exercises(source sqlx.Ext) model.ExerciseStore {
 	return NewExerciseStore(source)
+}
+
+// AbstractStore represents the base fields all stores
+// must have
+type AbstractStore struct {
+	idGen IDGenerator
+}
+
+// StoreConfig represents a configuration function for
+// inheritors of AbstractStore
+type StoreConfig func(*AbstractStore)
+
+// WithIDGenerator generates a StoreConfig that
+// sets the IDGenerator for a store to the supplied
+// IDGenerator
+func WithIDGenerator(idGen IDGenerator) StoreConfig {
+	return func(store *AbstractStore) {
+		store.idGen = idGen
+	}
 }

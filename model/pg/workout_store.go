@@ -1,25 +1,36 @@
 package pg
 
 import (
+	"bytes"
+	"fmt"
+	"strings"
+
 	"github.com/boxtown/pupd/model"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 // WorkoutStore implements model.WorkoutStore
 // using PostgreSQL
 type WorkoutStore struct {
+	*AbstractStore
 	source    sqlx.Ext
 	exercises model.ExerciseStore
 }
 
 // NewWorkoutStore returns a PostgreSQL-backed implementation
 // of model.WorkoutStore
-func NewWorkoutStore(source sqlx.Ext) model.WorkoutStore {
-	return &WorkoutStore{
+func NewWorkoutStore(source sqlx.Ext, configs ...StoreConfig) model.WorkoutStore {
+	store := &WorkoutStore{
+		AbstractStore: &AbstractStore{
+			idGen: UUIDV4Generator{},
+		},
 		source:    source,
 		exercises: NewExerciseStore(source),
 	}
+	for _, config := range configs {
+		config(store.AbstractStore)
+	}
+	return store
 }
 
 // Create attempts to create a record for the given Workout
@@ -27,11 +38,10 @@ func NewWorkoutStore(source sqlx.Ext) model.WorkoutStore {
 // will also be created. A v4 UUID will be assigned to the Workout
 // and is returned by this method.
 func (store WorkoutStore) Create(workout *model.Workout) (string, error) {
-	raw, err := uuid.NewRandom()
+	id, err := store.idGen.Generate()
 	if err != nil {
 		return "", err
 	}
-	id := raw.String()
 
 	if _, err = store.source.Exec(
 		"INSERT INTO core.workouts (workout_id, name) VALUES ($1, $2)",
@@ -40,11 +50,8 @@ func (store WorkoutStore) Create(workout *model.Workout) (string, error) {
 	); err != nil {
 		return "", err
 	}
-	for _, exercise := range workout.Exercises {
-		// TODO: ensure proper Pos field?
-		if _, err = store.exercises.Create(id, exercise); err != nil {
-			return "", err
-		}
+	if err = store.createExercises(id, workout.Exercises); err != nil {
+		return "", err
 	}
 	return id, nil
 }
@@ -87,12 +94,60 @@ func (store WorkoutStore) List() ([]*model.Workout, error) {
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	for _, workout := range workouts {
-		workoutExercises, err := store.exercises.GetByWorkoutID(workout.ID)
-		if err != nil {
-			return nil, err
-		}
-		workout.Exercises = workoutExercises
-	}
 	return workouts, nil
+}
+
+func (store WorkoutStore) createExercises(workoutID string, exercises []*model.Exercise) error {
+	if len(exercises) == 0 {
+		return nil
+	}
+	exerciseIDs := make([]string, len(exercises))
+	for i := range exercises {
+		id, err := store.idGen.Generate()
+		if err != nil {
+			return err
+		}
+		exerciseIDs[i] = id
+	}
+	query, args := buildCreateExercisesQuery(workoutID, exerciseIDs, exercises)
+	if _, err := store.source.Exec(query, args...); err != nil {
+		return err
+	}
+	query, args = buildCreateExerciseSetsQuery(exerciseIDs, exercises)
+	if _, err := store.source.Exec(query, args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func buildCreateExercisesQuery(workoutID string, exerciseIDs []string, exercises []*model.Exercise) (string, []interface{}) {
+	query := bytes.Buffer{}
+	query.WriteString("INSERT INTO core.exercises (exercise_id, workout_id, pos, movement_id) VALUES")
+	args := []interface{}{}
+
+	values := make([]string, len(exercises))
+	for i, exercise := range exercises {
+		values[i] = fmt.Sprintf(" ($%d, $%d, $%d, $%d)", i*4+1, i*4+2, i*4+3, i*4+4)
+		args = append(args, exerciseIDs[i], workoutID, i, exercise.Movement.ID)
+	}
+	query.WriteString(strings.Join(values, ","))
+	return query.String(), args
+}
+
+func buildCreateExerciseSetsQuery(exerciseIDs []string, exercises []*model.Exercise) (string, []interface{}) {
+	query := bytes.Buffer{}
+	query.WriteString("INSERT INTO core.exercises_sets (exercise_id, pos, reps) VALUES")
+	args := []interface{}{}
+
+	values := []string{}
+	k := 0
+	for i, exercise := range exercises {
+		for j, set := range exercise.Sets {
+			values = append(values, fmt.Sprintf(" ($%d, $%d, $%d)", k*3+1, k*3+2, k*3+3))
+			args = append(args, exerciseIDs[i], j, set.Reps)
+			k++
+		}
+	}
+	query.WriteString(strings.Join(values, ","))
+	return query.String(), args
 }

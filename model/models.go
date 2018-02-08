@@ -13,19 +13,11 @@ type Movement struct {
 	Name string `json:"name"`
 }
 
-// Unit is any unit of measurement (kg, s, m, etc.)
-type Unit struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
 // ExerciseSet is a single set of an exercise
-// with a given number of reps, intensity range, unit of work
-// and position within the set
+// with a given number of reps and position within the set
 type ExerciseSet struct {
-	Pos  int   `json:"pos"`
-	Reps int   `json:"reps"`
-	Unit *Unit `json:"unit"`
+	Pos  int `json:"pos"`
+	Reps int `json:"reps"`
 }
 
 // Exercise is a collection of variable sets for a single movement
@@ -41,5 +33,5 @@ type Exercise struct {
 type Workout struct {
 	ID        string      `json:"id"`
 	Name      string      `json:"name"`
-	Exercises []*Exercise `json:"exercises"`
+	Exercises []*Exercise `json:"exercises,omitempty"`
 }

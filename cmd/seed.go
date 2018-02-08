@@ -24,7 +24,6 @@ func init() {
 // Seed is a structure used to represent a database seed data store
 type Seed struct {
 	Movements []*model.Movement `json:"movements"`
-	Units     []*model.Unit     `json:"units"`
 	Workouts  []*model.Workout  `json:"workouts"`
 }
 
@@ -57,14 +56,6 @@ var seedCmd = &cobra.Command{
 					return err
 				}
 				movement.ID = id
-			}
-			unitStore := pg.NewUnitStore(tx)
-			for _, unit := range seed.Units {
-				id, err := unitStore.Create(unit)
-				if err != nil {
-					return err
-				}
-				unit.ID = id
 			}
 
 			workoutStore := pg.NewWorkoutStore(tx)

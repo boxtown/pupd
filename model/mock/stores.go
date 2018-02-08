@@ -11,17 +11,12 @@ import (
 
 type MockStores struct {
 	MockMovementStore
-	MockUnitStore
 	MockWorkoutStore
 	MockExerciseStore
 }
 
 func (stores MockStores) Movements(source sqlx.Ext) model.MovementStore {
 	return stores.MockMovementStore
-}
-
-func (stores MockStores) Units(source sqlx.Ext) model.UnitStore {
-	return stores.MockUnitStore
 }
 
 func (stores MockStores) Workouts(source sqlx.Ext) model.WorkoutStore {
@@ -65,39 +60,6 @@ func (store MockMovementStore) Delete(id string) error {
 	return store.DeleteFn(id)
 }
 
-type MockUnitStore struct {
-	CreateFn    func(unit *model.Unit) (string, error)
-	GetFn       func(id string) (*model.Unit, error)
-	GetByNameFn func(name string) (*model.Unit, error)
-	ListFn      func() ([]*model.Unit, error)
-	UpdateFn    func(unit *model.Unit) error
-	DeleteFn    func(id string) error
-}
-
-func (store MockUnitStore) Create(unit *model.Unit) (string, error) {
-	return store.CreateFn(unit)
-}
-
-func (store MockUnitStore) Get(id string) (*model.Unit, error) {
-	return store.GetFn(id)
-}
-
-func (store MockUnitStore) GetByName(name string) (*model.Unit, error) {
-	return store.GetByNameFn(name)
-}
-
-func (store MockUnitStore) List() ([]*model.Unit, error) {
-	return store.ListFn()
-}
-
-func (store MockUnitStore) Update(unit *model.Unit) error {
-	return store.UpdateFn(unit)
-}
-
-func (store MockUnitStore) Delete(id string) error {
-	return store.DeleteFn(id)
-}
-
 type MockWorkoutStore struct {
 	CreateFn func(workout *model.Workout) (string, error)
 	GetFn    func(id string) (*model.Workout, error)
@@ -117,13 +79,8 @@ func (store MockWorkoutStore) List() ([]*model.Workout, error) {
 }
 
 type MockExerciseStore struct {
-	CreateFn         func(workoutID string, exercise *model.Exercise) (string, error)
 	GetFn            func(id string) (*model.Exercise, error)
 	GetByWorkoutIDFn func(id string) ([]*model.Exercise, error)
-}
-
-func (store MockExerciseStore) Create(workoutID string, exercise *model.Exercise) (string, error) {
-	return store.CreateFn(workoutID, exercise)
 }
 
 func (store MockExerciseStore) Get(id string) (*model.Exercise, error) {

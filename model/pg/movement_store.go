@@ -2,31 +2,39 @@ package pg
 
 import (
 	"github.com/boxtown/pupd/model"
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
 // MovementStore implements model.MovementStore
 // using PostgreSQL
 type MovementStore struct {
+	*AbstractStore
 	source sqlx.Ext
 }
 
 // NewMovementStore returns a PostgreSQL-backed implementation
 // of model.MovementStore
-func NewMovementStore(source sqlx.Ext) model.MovementStore {
-	return &MovementStore{source: source}
+func NewMovementStore(source sqlx.Ext, configs ...StoreConfig) model.MovementStore {
+	store := &MovementStore{
+		AbstractStore: &AbstractStore{
+			idGen: UUIDV4Generator{},
+		},
+		source: source,
+	}
+	for _, config := range configs {
+		config(store.AbstractStore)
+	}
+	return store
 }
 
 // Create attempts to create a record for the given Movement in
 // the store. A v4 UUID will be assigned to the Movement as an ID
 // and is returned by this method
 func (store MovementStore) Create(movement *model.Movement) (string, error) {
-	raw, err := uuid.NewRandom()
+	id, err := store.idGen.Generate()
 	if err != nil {
 		return "", err
 	}
-	id := raw.String()
 
 	if _, err = store.source.Exec(
 		"INSERT INTO core.movements (movement_id, name) VALUES ($1, $2)",

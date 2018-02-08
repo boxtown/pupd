@@ -6,7 +6,6 @@ import "github.com/jmoiron/sqlx"
 // stores given a data source
 type Stores interface {
 	Movements(source sqlx.Ext) MovementStore
-	Units(source sqlx.Ext) UnitStore
 	Workouts(source sqlx.Ext) WorkoutStore
 	Exercises(source sqlx.Ext) ExerciseStore
 }
@@ -21,16 +20,6 @@ type MovementStore interface {
 	Delete(id string) error
 }
 
-// UnitStore defines an interface for a store of Units
-type UnitStore interface {
-	Create(unit *Unit) (string, error)
-	Get(id string) (*Unit, error)
-	GetByName(name string) (*Unit, error)
-	List() ([]*Unit, error)
-	Update(unit *Unit) error
-	Delete(id string) error
-}
-
 // WorkoutStore defines an interface for a store of Workouts
 type WorkoutStore interface {
 	Create(workout *Workout) (string, error)
@@ -40,7 +29,6 @@ type WorkoutStore interface {
 
 // ExerciseStore defines an interface for a store of Exercises
 type ExerciseStore interface {
-	Create(workoutID string, exercise *Exercise) (string, error)
 	Get(id string) (*Exercise, error)
 	GetByWorkoutID(id string) ([]*Exercise, error)
 }
